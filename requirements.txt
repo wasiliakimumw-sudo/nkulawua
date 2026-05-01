@@ -3,8 +3,10 @@ certifi==2026.2.25
 charset-normalizer==3.4.7
 crispy-bootstrap5==2026.3
 dj-database-url==3.1.2
-Django==5.2.3
+Django==4.2.30
+django-cors-headers==4.9.0
 django-crispy-forms==2.6
+djangorestframework==3.17.1
 et_xmlfile==2.0.0
 gunicorn==25.3.0
 idna==3.11
@@ -12,9 +14,12 @@ openpyxl==3.1.5
 packaging==26.1
 pillow==12.2.0
 psycopg2-binary==2.9.11
-python-dotenv==1.0.1
+PyMySQL==1.1.1
+python-dateutil==2.9.0.post0
+python-dotenv==1.2.2
 reportlab==4.4.10
 requests==2.33.1
+six==1.17.0
 sqlparse==0.5.5
 tzdata==2026.1
 urllib3==2.6.3

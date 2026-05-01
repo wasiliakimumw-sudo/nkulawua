@@ -2,24 +2,34 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY
-SECRET_KEY = os.getenv(
-    'SECRET_KEY',
-    'django-insecure-default-change-this'
-)
+SECRET_KEY = os.environ.get("SECRET_KEY", "fallback-secret")
+DEBUG = os.environ.get("DEBUG", "False") == "True"
+raise ImproperlyConfigured("SECRET_KEY environment variable is not set.")
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    'testserver',
-] + [
+ALLOWED_HOSTS = ['*']  # temporary (we’ll tighten later)
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+]
+
+railway_host = os.getenv('RAILWAY_PUBLIC_DOMAIN', '')
+if railway_host:
+    ALLOWED_HOSTS.append(railway_host)
+
+ALLOWED_HOSTS += [
     host.strip()
     for host in os.getenv('ALLOWED_HOSTS', '').split(',')
     if host.strip()
@@ -43,17 +53,15 @@ INSTALLED_APPS = [
 # MIDDLEWARE
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    'accounting_app.middleware.UserActivityMiddleware',
 ]
+
 
 ROOT_URLCONF = 'accounting_project.urls'
 
@@ -135,14 +143,22 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 # SECURITY (PRODUCTION SAFE)
 CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 SECURE_SSL_REDIRECT = os.getenv(
     'SECURE_SSL_REDIRECT',
-    'False'
+    'True' if not DEBUG else 'False'
 ).lower() == 'true'
 
-if SECURE_SSL_REDIRECT:
+if SECURE_SSL_REDIRECT or not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# HSTS (optional, enable by setting HSTS_SECONDS in env)
+HSTS_SECONDS = int(os.getenv('HSTS_SECONDS', '0'))
+if HSTS_SECONDS > 0:
+    SECURE_HSTS_SECONDS = HSTS_SECONDS
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True

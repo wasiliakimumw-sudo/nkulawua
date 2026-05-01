@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 from accounting_app import views
 
 urlpatterns = [
@@ -100,7 +101,6 @@ urlpatterns = [
     path('opening-balances/', views.opening_balance_list, name='opening_balance_list'),
     path('opening-balances/create/', views.opening_balance_edit, name='opening_balance_edit'),
     path('year-end/', views.year_end_rollover, name='year_end_rollover'),
-    path('beneficiaries/<int:pk>/toggle/', views.beneficiary_toggle_status, name='beneficiary_toggle_status'),
     path('overdue/', views.overdue_accounts, name='overdue_accounts'),
     path('users/<int:pk>/toggle/', views.user_toggle_status, name='user_toggle_status'),
     path('import/template/', views.download_import_template, name='download_import_template'),
@@ -142,3 +142,5 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
